@@ -1,0 +1,14 @@
+!macro L1: 50
+
+!macro FT: (x,y) {
+    x + y
+}
+
+!macro LT: () {
+    !for::arg { + arg }
+}
+
+
+fn main() => int {
+    return L1 + FT(1, 2);
+}

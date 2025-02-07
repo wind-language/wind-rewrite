@@ -1,0 +1,11 @@
+[package]
+name = "wind"
+version = "0.1.0"
+edition = "2024"
+authors = ["utcq", "stopa"]
+
+[dependencies]
+thiserror = "1.0"
+
+[features]
+portable_simd = []
