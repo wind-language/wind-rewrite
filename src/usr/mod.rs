@@ -1,6 +1,7 @@
 use crate::reporter;
 use crate::frontend::preprocessor;
 use crate::frontend::lexer;
+use crate::frontend::parser::parser_impl;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
@@ -43,6 +44,12 @@ fn process_file(file: &str) -> Result<(), reporter::usr::CliError> {
         eprintln!("{}", e);
     }
     lex_inst.dump_tokens();
+
+    let mut parser = parser_impl::Parser::new(&lex_inst);
+    
+    parser.parse_all_tokens();
+    parser.dump_nodes();
+
     Ok(())
 }
 

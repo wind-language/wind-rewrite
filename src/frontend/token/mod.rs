@@ -58,7 +58,7 @@ pub enum TokenType {
     WS
 }
 
-#[derive(Clone)]
+#[derive(Eq, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String,
