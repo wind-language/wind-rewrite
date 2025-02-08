@@ -4,8 +4,42 @@ version = "0.1.0"
 edition = "2024"
 authors = ["utcq", "stopa"]
 
-[dependencies]
-thiserror = "1.0"
+[[bin]]
+name = "wind"
+path = "src/main.rs"
 
-[features]
-portable_simd = []
+
+
+
+# --------------- Build Config ----------------
+
+#[profile.release]
+#rustflags = ["-C", "target-cpu=native"]
+
+# ---------------------------------------------
+
+
+
+
+# ------------------- Tests -------------------
+
+# IR testing
+[[test]]
+name = "ir"
+path = "tests/ir.rs"
+
+# --------------------------------------------
+
+
+
+
+# ------------------- Deps -------------------
+
+[dependencies.thiserror]
+version = "1.0"
+
+[dependencies.xxhash-rust]
+version = "0.8.5"
+features = ["xxh3", "const_xxh3"]
+
+# --------------------------------------------

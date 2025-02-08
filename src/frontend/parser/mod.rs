@@ -1,112 +1,137 @@
-pub mod parser_impl;
+use std::{collections::LinkedList, iter::Peekable, slice::Iter};
 
-use std::collections::HashMap;
+use crate::frontend::{lexer::Lexer, token::{Token, TokenType}};
 
-#[derive(PartialEq, Debug, Clone)]
-pub enum Literal {
-    INTEGER(i64),
-    FLOAT(f64),
-    BOOL(bool),
-    STRING(String)
+use crate::frontend::ast::{ASTNode, Expression, Literal, Variable};
+
+
+pub struct Parser<'a> {
+    token_iterator: Peekable<Iter<'a, Token>>,
+    current_token: Option<&'a Token>,
+    
+    parsed_ast_nodes: LinkedList<ASTNode>
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub enum Expression {
-    LITERAL(Literal),
-    VARIABLE(Variable),
-    BINARY {
-      left: Box<Expression>,
-      right: Box<Expression>,
-      op: String
+impl<'a> Parser<'a> {
+    pub fn new(lexer: &'a Lexer) -> Self {
+        let mut s = Self {
+            token_iterator: lexer.tokens.iter().peekable(),
+            current_token: None,
+            parsed_ast_nodes: LinkedList::new()
+        };
+
+        // get first token 
+        s.current_token = s.token_iterator.next();
+        
+        return s
     }
-}
 
-#[derive(PartialEq, Debug, Clone)]
-pub enum ASTNode {
-    EXPRESSION(Expression),
-    VARIABLE(Variable),
-    BODY(Body),
-    RETURN(Return),
-    FUNCTION(Function)
-}
-
-#[derive(PartialEq, Debug, Clone)]
-pub enum Statement {
-    EXPRESSION(Expression),
-    RETURN(Expression),
-}
-
-
-type DataType = String;
-
-
-#[derive(PartialEq, Debug, Clone)]
-pub struct Variable {
-    pub name: String,
-}
-
-impl Variable {
-    pub fn new(name: String) -> Self {
-        Self { name }
-    }
-}
-
-pub enum Reference {
-    Local {
-        offset: i16,
-        v_type: DataType,
-    }
-}
-  
-#[derive(Debug, Clone, PartialEq)]
-pub struct Return {
-    value: Option<Box<ASTNode>>,
-}
-
-impl Return {
-    pub fn new(value: Option<ASTNode>) -> Self {
-        Self {
-            value: value.map(Box::new),
+    fn eat(&mut self, expected: TokenType) {
+        if self.current_token.unwrap().token_type == expected {
+            self.current_token = self.token_iterator.next();
+        } else {
+            panic!("Expected {:?}, but found {:?}", expected, self.current_token);
         }
     }
-}
 
-#[derive(PartialEq, Debug, Clone)]
-pub struct Body {
-    statements: Vec<ASTNode>,
-    pub consts_table: HashMap<String, ASTNode>,
-}
+    pub fn parse_expression(&mut self) -> Expression {
+        let mut left = self.parse_term();
 
-impl Body {
-    pub fn new(statements: Vec<ASTNode>) -> Self {
-        Self {
-            statements,
-            consts_table: HashMap::new(),
+        while matches!(self.current_token.unwrap().token_type, TokenType::PLUS | TokenType::MINUS) {
+            let op = self.current_token.clone();
+            self.eat(op.unwrap().token_type.clone());
+            let right = self.parse_term();
+            left = Expression::BINARY{ left: Box::new(left), right: Box::new(right), op: op.unwrap().literal.clone() };
+        }
+        left
+    }
+
+    pub fn parse_term(&mut self) -> Expression {
+        let mut left = self.parse_factor();
+
+        while matches!(self.current_token.unwrap().token_type, TokenType::ASTERISK | TokenType::SLASH) {
+            let op = self.current_token.clone();
+            self.eat(op.unwrap().token_type.clone());
+            let right = self.parse_factor();
+            left = Expression::BINARY{ left: Box::new(left), right: Box::new(right), op: op.unwrap().literal.clone() };
+        }
+
+        left
+    }
+
+    pub fn parse_factor(&mut self) -> Expression {
+        let unwrapped_current_token = self.current_token.unwrap();
+        match &unwrapped_current_token.token_type {
+            TokenType::INTEGER => {
+                let parsed_value = unwrapped_current_token.literal.parse::<i64>().expect("Token has wrong type.");
+                let expr = Expression::LITERAL(Literal::INTEGER(parsed_value));
+                self.eat(unwrapped_current_token.token_type.clone());
+                expr
+            }
+            TokenType::FLOAT => {
+                let parsed_value = unwrapped_current_token.literal.parse::<f64>().expect("Token has wrong type.");
+                let expr = Expression::LITERAL(Literal::FLOAT(parsed_value));
+                self.eat(unwrapped_current_token.token_type.clone());
+                expr
+            }
+            TokenType::IDENTIFIER => {
+                let expr = Expression::VARIABLE(Variable { name: unwrapped_current_token.literal.clone() });
+                self.eat(unwrapped_current_token.token_type.clone());
+                expr
+            }
+            _ => panic!("Unexpected token: {:?}", self.current_token),
         }
     }
-}
 
+    pub fn parse_assignment(&mut self) -> Expression {
+        match &self.current_token.unwrap().token_type {
+            TokenType::IDENTIFIER => {
 
-#[derive(PartialEq, Debug, Clone)]
-pub struct Function {
-    pub name: String,
-    pub metadata: String,
-    pub arguments: Vec<(String, DataType)>,
-    pub return_type: DataType,
-    pub flags: u16,
-    pub body: Vec<Statement>,
-}
-
-impl Function {
-    pub fn new(name: String, metadata: String, arguments: Vec<(String, DataType)>, 
-            return_type: DataType, flags: u16, body: Vec<Statement>) -> Self {
-        Self {
-            name,
-            metadata,
-            arguments,
-            return_type,
-            flags,
-            body,
+                let var_name = self.current_token.unwrap().literal.clone();
+                self.eat(TokenType::IDENTIFIER);
+                self.eat(TokenType::ASSIGN);
+                let value = self.parse_expression();
+                self.eat(TokenType::SEMICOLON);
+                return Expression::BINARY{ left: Box::new(Expression::VARIABLE(Variable{name: var_name})), op: "=".to_string(), right: Box::new(value)};
+            }        
+            _ => {panic!("Expected assignment statement")}
         }
     }
+
+    pub fn parse_all_tokens(&mut self) -> &LinkedList<ASTNode> {
+        while self.current_token.is_some() {
+            let node = match self.current_token.unwrap().token_type {
+                TokenType::IDENTIFIER => {
+                    // If the next token is an assignment (`=`), treat it as an assignment statement
+                    if let Some(next_token) = self.token_iterator.peek() {
+                        if next_token.token_type == TokenType::ASSIGN {
+                            ASTNode::EXPRESSION(self.parse_assignment())
+                        } else {
+                            ASTNode::EXPRESSION(self.parse_expression())
+                        }
+                    } else {
+                        ASTNode::EXPRESSION(self.parse_expression())
+                    }
+                }
+                TokenType::INTEGER | TokenType::FLOAT => {
+                    ASTNode::EXPRESSION(self.parse_expression())
+                }
+                _ => {
+                    panic!("Unexpected token: {:?}", self.current_token);
+                }
+            };
+    
+            self.parsed_ast_nodes.push_back(node);
+        }
+    
+        &self.parsed_ast_nodes
+    }
+
+    pub fn dump_nodes(&self) {
+        for node in self.parsed_ast_nodes.iter() {
+            println!("{:?}", node)
+        }    
+    }
+    
 }
+

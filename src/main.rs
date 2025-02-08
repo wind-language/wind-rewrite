@@ -1,10 +1,6 @@
-#![feature(portable_simd)]
+use wind::usr;
 
-pub mod usr;
-pub mod reporter;
-pub mod frontend;
-
-fn main() {
+pub fn main() {
     if let Err(e) = usr::run_cli() {
         eprintln!("{}", e);
     }
