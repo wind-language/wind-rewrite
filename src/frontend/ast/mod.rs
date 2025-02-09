@@ -49,6 +49,7 @@ impl Variable {
     }
 }
 
+#[derive(PartialEq, Debug, Clone)]
 pub enum Reference {
     Local {
         offset: i16,

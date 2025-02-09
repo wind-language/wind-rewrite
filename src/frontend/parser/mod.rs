@@ -14,16 +14,16 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     pub fn new(lexer: &'a Lexer) -> Self {
-        let mut s = Self {
-            token_iterator: lexer.tokens.iter().peekable(),
-            current_token: None,
-            parsed_ast_nodes: LinkedList::new()
-        };
-
-        // get first token 
-        s.current_token = s.token_iterator.next();
+        let mut iterator = lexer.tokens.iter().peekable();
         
-        return s
+        // get first token 
+        let current_token = iterator.next();
+
+        Self {
+            token_iterator: iterator,
+            current_token: current_token,
+            parsed_ast_nodes: LinkedList::new()
+        }        
     }
 
     fn eat(&mut self, expected: TokenType) {
@@ -37,19 +37,27 @@ impl<'a> Parser<'a> {
     pub fn parse_expression(&mut self) -> Expression {
         let mut left = self.parse_term();
 
-        while matches!(self.current_token.unwrap().token_type, TokenType::PLUS | TokenType::MINUS) {
-            let op = self.current_token.clone();
-            self.eat(op.unwrap().token_type.clone());
+        while matches!(self.current_token.unwrap().token_type, TokenType::PLUS | TokenType::MINUS | TokenType::ASSIGN | TokenType::ASTERISK | TokenType::PLUS_ASSIGN | TokenType::MINUS_ASSIGN ) {
+            let op = self.current_token.unwrap().clone();
+            self.eat(op.token_type);
             let right = self.parse_term();
-            left = Expression::BINARY{ left: Box::new(left), right: Box::new(right), op: op.unwrap().literal.clone() };
+            left = Expression::BINARY{ left: Box::new(left), right: Box::new(right), op: op.literal };
         }
+
         left
+    }
+
+    pub fn parse_expression_enforce_semicolon(&mut self) -> Expression {
+        let exp = self.parse_expression();
+        self.eat(TokenType::SEMICOLON);
+
+        exp
     }
 
     pub fn parse_term(&mut self) -> Expression {
         let mut left = self.parse_factor();
 
-        while matches!(self.current_token.unwrap().token_type, TokenType::ASTERISK | TokenType::SLASH) {
+        while matches!(self.current_token.expect("Unexpected end of input.").token_type, TokenType::ASTERISK | TokenType::SLASH) {
             let op = self.current_token.clone();
             self.eat(op.unwrap().token_type.clone());
             let right = self.parse_factor();
@@ -60,7 +68,7 @@ impl<'a> Parser<'a> {
     }
 
     pub fn parse_factor(&mut self) -> Expression {
-        let unwrapped_current_token = self.current_token.unwrap();
+        let unwrapped_current_token = self.current_token.expect("Unexpected end of input");
         match &unwrapped_current_token.token_type {
             TokenType::INTEGER => {
                 let parsed_value = unwrapped_current_token.literal.parse::<i64>().expect("Token has wrong type.");
@@ -79,48 +87,24 @@ impl<'a> Parser<'a> {
                 self.eat(unwrapped_current_token.token_type.clone());
                 expr
             }
+            TokenType::LPAREN => {
+                self.eat(TokenType::LPAREN);
+                let inner_expression = self.parse_expression();
+                self.eat(TokenType::RPAREN);
+                inner_expression
+            }
+            TokenType::MINUS | TokenType::PLUS => {
+                self.eat(self.current_token.unwrap().token_type.clone());
+                self.parse_expression()
+            }
             _ => panic!("Unexpected token: {:?}", self.current_token),
         }
     }
 
-    pub fn parse_assignment(&mut self) -> Expression {
-        match &self.current_token.unwrap().token_type {
-            TokenType::IDENTIFIER => {
-
-                let var_name = self.current_token.unwrap().literal.clone();
-                self.eat(TokenType::IDENTIFIER);
-                self.eat(TokenType::ASSIGN);
-                let value = self.parse_expression();
-                self.eat(TokenType::SEMICOLON);
-                return Expression::BINARY{ left: Box::new(Expression::VARIABLE(Variable{name: var_name})), op: "=".to_string(), right: Box::new(value)};
-            }        
-            _ => {panic!("Expected assignment statement")}
-        }
-    }
 
     pub fn parse_all_tokens(&mut self) -> &LinkedList<ASTNode> {
         while self.current_token.is_some() {
-            let node = match self.current_token.unwrap().token_type {
-                TokenType::IDENTIFIER => {
-                    // If the next token is an assignment (`=`), treat it as an assignment statement
-                    if let Some(next_token) = self.token_iterator.peek() {
-                        if next_token.token_type == TokenType::ASSIGN {
-                            ASTNode::EXPRESSION(self.parse_assignment())
-                        } else {
-                            ASTNode::EXPRESSION(self.parse_expression())
-                        }
-                    } else {
-                        ASTNode::EXPRESSION(self.parse_expression())
-                    }
-                }
-                TokenType::INTEGER | TokenType::FLOAT => {
-                    ASTNode::EXPRESSION(self.parse_expression())
-                }
-                _ => {
-                    panic!("Unexpected token: {:?}", self.current_token);
-                }
-            };
-    
+            let node = ASTNode::EXPRESSION(self.parse_expression_enforce_semicolon());
             self.parsed_ast_nodes.push_back(node);
         }
     
