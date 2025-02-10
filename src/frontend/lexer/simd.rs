@@ -22,6 +22,8 @@ impl lexer::Lexer {
                 let upper_bound_uppercase = Simd::splat(b'Z');
                 let lower_bound_numeric = Simd::splat(b'0');
                 let upper_bound_numeric = Simd::splat(b'9');
+                let lower_bound_extended = Simd::splat(lexer::ASCII_EXTENDED as u8);
+                let upper_bound_extended = Simd::splat(lexer::ASCII_EXT_END as u8);
                 let underscore = Simd::splat(b'_');
                 let colon = Simd::splat(b':');
     
@@ -30,8 +32,9 @@ impl lexer::Lexer {
                 let is_numeric = chunk.simd_ge(lower_bound_numeric) & chunk.simd_le(upper_bound_numeric);
                 let is_underscore = chunk.simd_eq(underscore);
                 let is_double_colon = chunk.simd_eq(colon).to_array();
+                let is_extended = chunk.simd_ge(lower_bound_extended) & chunk.simd_le(upper_bound_extended);
     
-                let is_valid = is_lower | is_upper | is_numeric | is_underscore;
+                let is_valid = is_lower | is_upper | is_numeric | is_underscore | is_extended;
     
                 let mut break_index = 8;
                 let mut i = 0;

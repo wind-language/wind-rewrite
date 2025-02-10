@@ -1,12 +1,9 @@
 Lexer:
-
-    [ ]: SIMD-powered identifier scanning
+    [x]: SIMD-powered identifier scanning
 
 IR:
-
-    [ ]: IR Passes based Optimization Pipeline
+    [x]: IR Passes based Optimization Pipeline
 
 Codegen:
-    
     [ ]: Register Allocation:
         [ ]: DSatur Graph coloring

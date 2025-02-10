@@ -36,6 +36,8 @@ pub struct Lexer {
     allow_ws: bool
 }
 
+const ASCII_EXTENDED: char = 128 as char;
+const ASCII_EXT_END:  char = 255 as char;
 
 impl Lexer {
     pub fn new(src: String, allow_ws: bool) -> Lexer {
@@ -93,7 +95,7 @@ impl Lexer {
         while self.buffer.index < src_bytes.len() {
             let c = src_bytes[self.buffer.index] as char;
             match c {
-                'a'..='z' | 'A'..='Z' => self.lex_ident(),
+                'a'..='z' | 'A'..='Z' | ASCII_EXTENDED..=ASCII_EXT_END => self.lex_ident(),
                 '0'..='9' => self.lex_number(),
                 '!' | '=' | '<' | '>' => self.lex_punct(),
                 '(' | ')' | '{' | '}' | '[' | ']' | ',' | ':' | ';' => self.lex_punct(),

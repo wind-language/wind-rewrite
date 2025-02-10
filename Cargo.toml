@@ -26,7 +26,7 @@ path = "src/main.rs"
 # IR testing
 [[test]]
 name = "ir"
-path = "tests/ir.rs"
+path = "testing/ir.rs"
 
 # --------------------------------------------
 

@@ -7,6 +7,16 @@ pub enum CompilerError {
         name: String,
     },
 
+    #[error("🔥 Function `{name}` not found")]
+    FunctionNotFound {
+        name: String,
+    },
+
+    #[error("🚨 Type not found")]
+    TypeNotFound {
+        name: String,
+    },
+
     #[error("💥 Unknown error occurred.")]
     Unknown,
 }
