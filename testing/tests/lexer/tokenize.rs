@@ -1,6 +1,5 @@
-
 #[cfg(test)]
-mod tests {
+mod tokenize_test {
     use wind::frontend::{lexer::{self, Lexer}, preprocessor};
 
     fn prepare(src: &str) -> Lexer {
@@ -16,7 +15,7 @@ mod tests {
     }
     
     #[test]
-    fn lexes() {
+    fn does_parse() {
 
         let mut lexer = prepare("a = 10;");
         let _ = lexer.lex();

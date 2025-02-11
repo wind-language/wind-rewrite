@@ -16,7 +16,7 @@ mod const_folding_test {
                         ir::Expr::Binary {
                             op: ir::BinaryOp::Add,
                             left: Box::new( ir::Expr::Literal( ir::Literal::Int(5) ) ),
-                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(3) ) )
+                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(3) ) ),
                         }
                     )
                 ]
@@ -63,10 +63,10 @@ mod const_folding_test {
                                 ir::Expr::Binary {
                                     op: ir::BinaryOp::Add,
                                     left: Box::new( ir::Expr::Literal( ir::Literal::Int(5) ) ),
-                                    right: Box::new( ir::Expr::Literal( ir::Literal::Int(3) ) )
+                                    right: Box::new( ir::Expr::Literal( ir::Literal::Int(3) ) ),
                                 }
                             ),
-                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(2) ) )
+                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(2) ) ),
                         }
                     )
                 ]

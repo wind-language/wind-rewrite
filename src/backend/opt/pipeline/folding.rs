@@ -20,7 +20,7 @@ impl ConstantFolding {
     }
 
     fn visit_expr(&mut self, expr: &mut ir::Expr) {
-        if let ir::Expr::Binary { op, left, right } = expr {
+        if let ir::Expr::Binary { op, left, right} = expr {
             if let (ir::Expr::Literal(ir::Literal::Int(l)), ir::Expr::Literal(ir::Literal::Int(r))) = (&**left, &**right) {
                 let result = match op {
                     ir::BinaryOp::Add => l + r,
@@ -59,6 +59,7 @@ impl ConstantFolding {
 
 impl opt::OptimizationPass for ConstantFolding {
     fn run(&mut self, ir: &mut ir::Module) -> bool {
+        self.changed = false;
         for d_fn in ir.functions.iter_mut() {
             self.state.func = Some(Box::new(d_fn.1.clone()));
 

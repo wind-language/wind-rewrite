@@ -16,21 +16,21 @@ mod dead_code_test {
                         ir::Expr::Binary {
                             op: ir::BinaryOp::Add,
                             left: Box::new( ir::Expr::Literal( ir::Literal::Int(2) ) ),
-                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(3) ) )
+                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(3) ) ),
                         }
                     ),
                     ir::Statement::Return(
                         ir::Expr::Binary {
                             op: ir::BinaryOp::Add,
                             left: Box::new( ir::Expr::Literal( ir::Literal::Int(5) ) ),
-                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(3) ) )
+                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(3) ) ),
                         }
                     ),
                     ir::Statement::Return(
                         ir::Expr::Binary {
                             op: ir::BinaryOp::Add,
                             left: Box::new( ir::Expr::Literal( ir::Literal::Int(6) ) ),
-                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(1) ) )
+                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(1) ) ),
                         }
                     )
                 ]
@@ -73,7 +73,7 @@ mod dead_code_test {
                         ir::Expr::Binary {
                             op: ir::BinaryOp::Add,
                             left: Box::new( ir::Expr::Literal( ir::Literal::Int(9) ) ),
-                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(1) ) )
+                            right: Box::new( ir::Expr::Literal( ir::Literal::Int(1) ) ),
                         }
                     ),
                 ]

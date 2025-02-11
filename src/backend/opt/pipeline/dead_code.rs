@@ -68,6 +68,7 @@ impl DeadCode {
 impl opt::OptimizationPass for DeadCode {
 
     fn run(&mut self, ir: &mut ir::Module) -> bool {
+        self.changed = false;
         for d_fn in ir.functions.iter_mut() {
             let mut new_body: Vec<ir::Statement> = Vec::new();
             self.state.func = Some(Box::new(d_fn.1.clone()));

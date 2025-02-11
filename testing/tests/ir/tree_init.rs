@@ -23,7 +23,7 @@ mod tree_init_test {
                             ),
                             right: Box::new(
                                 ir::Expr::Reference(ir::Reference::Local { offset: 8, v_type: tree.resolve_type("i32".to_string()).unwrap() })
-                            )
+                            ),
                         }
                     )
                 ]

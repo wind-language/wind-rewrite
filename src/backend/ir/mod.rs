@@ -51,7 +51,7 @@ impl std::fmt::Display for DataType {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
-    Int(i64),
+    Int(u64),
     Float(f64),
     Bool(bool),
     Str(String),

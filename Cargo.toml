@@ -28,6 +28,20 @@ path = "src/main.rs"
 name = "ir"
 path = "testing/ir.rs"
 
+[[test]]
+name = "opt"
+path = "testing/opt.rs"
+
+# Lexer testing
+[[test]]
+name = "lexer"
+path = "testing/lexer.rs"
+
+# Parser testing
+[[test]]
+name = "parser"
+path = "testing/parser.rs"
+
 # --------------------------------------------
 
 
