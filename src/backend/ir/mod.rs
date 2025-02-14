@@ -99,6 +99,10 @@ impl Function {
             body,
         }
     }
+
+    pub fn push(&mut self, statement: Statement) {
+        self.body.push(statement);
+    }
 }
 
 #[derive(Clone, PartialEq)]

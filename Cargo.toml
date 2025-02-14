@@ -28,6 +28,8 @@ path = "src/main.rs"
 name = "ir"
 path = "testing/ir.rs"
 
+# Optimizations testing
+
 [[test]]
 name = "opt"
 path = "testing/opt.rs"
@@ -41,6 +43,11 @@ path = "testing/lexer.rs"
 [[test]]
 name = "parser"
 path = "testing/parser.rs"
+
+# Assembler testing
+[[test]]
+name = "asm"
+path = "testing/asm.rs"
 
 # --------------------------------------------
 
