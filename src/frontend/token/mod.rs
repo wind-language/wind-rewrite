@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-#[derive(PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 #[allow(non_camel_case_types)]
 pub enum TokenType {
     IDENTIFIER,
@@ -57,6 +57,26 @@ pub enum TokenType {
 
     WS
 }
+
+use TokenType::*;
+pub const LOGICAL_OPERATORS:        [TokenType; 2] = [LOGICAL_AND, LOGICAL_OR];
+pub const ARITHMETIC_OPERATORS:     [TokenType; 4] = [PLUS, MINUS, ASTERISK, SLASH];
+pub const ASSIGN_OPERATORS:         [TokenType; 3] = [ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN];
+pub const COMPARISSON_OPERATORS:    [TokenType; 6] = [EQ, NEQ, GT, GTE, LT, LTE];
+
+
+const BINARY_OPERATORS_LENGHT: usize = 
+    LOGICAL_OPERATORS.len() + 
+    ARITHMETIC_OPERATORS.len() + 
+    ASSIGN_OPERATORS.len() + 
+    COMPARISSON_OPERATORS.len();
+
+pub const BINARY_OPERATORS:         [TokenType; BINARY_OPERATORS_LENGHT] = [
+    LOGICAL_AND, LOGICAL_OR,
+    PLUS, MINUS, ASTERISK, SLASH, 
+    ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN, 
+    EQ, NEQ, GT, GTE, LT, LTE
+];
 
 #[derive(Eq, Clone)]
 pub struct Token {

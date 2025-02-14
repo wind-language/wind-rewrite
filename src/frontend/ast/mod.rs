@@ -14,8 +14,8 @@ pub enum Expression {
     VARIABLE(Variable),
     BINARY {
       left: Box<Expression>,
-      right: Box<Expression>,
-      op: String
+      op: String,
+      right: Box<Expression>
     }
 }
 
