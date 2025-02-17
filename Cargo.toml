@@ -49,6 +49,11 @@ path = "testing/parser.rs"
 name = "asm"
 path = "testing/asm.rs"
 
+# Writer testing
+[[test]]
+name = "writer"
+path = "testing/writer.rs"
+
 # --------------------------------------------
 
 
@@ -58,6 +63,10 @@ path = "testing/asm.rs"
 
 [dependencies.thiserror]
 version = "1.0"
+
+[dependencies.object]
+version = "0.36.7"
+features = ["write_core"]
 
 [dependencies.xxhash-rust]
 version = "0.8.5"

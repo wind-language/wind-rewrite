@@ -42,6 +42,7 @@ pub const R12: GPR = GPR{id: 12, size: 8};
 pub const R13: GPR = GPR{id: 13, size: 8};
 pub const R14: GPR = GPR{id: 14, size: 8};
 pub const R15: GPR = GPR{id: 15, size: 8};
+pub const RIP: GPR = GPR{id: 16, size: 8};
 
 pub const EAX: GPR = GPR{id: 0, size: 4};
 pub const ECX: GPR = GPR{id: 1, size: 4};

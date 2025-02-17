@@ -10,6 +10,7 @@ pub mod opmod {
     pub const MEM_ADDR: u8 = 0b00;
     pub const MEM_ADDR_DISP8: u8 = 0b01;
     pub const MEM_ADDR_DISP32: u8 = 0b10;
+    pub const SIB: u8 = 0b100;
     pub const REG: u8 = 0b11;
 
     pub fn encode(modb: u8, reg: u8, rm: u8) -> u8 {

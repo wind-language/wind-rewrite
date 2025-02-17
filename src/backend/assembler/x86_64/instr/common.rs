@@ -98,9 +98,11 @@ macro_rules! tb2_gprimm_instr {
             if src as usize > (1 << ((dst.size*8)-1)) {
                 panic!("Error: imm src is too large for the destination register");
             }
+
+            let d32 = src as i32 > i8::MAX as i32 || (src as i32) < i8::MIN as i32;
     
             const OPCODE: [u8; 4] = $opcodes;
-            code.push(OPCODE[dst.size.trailing_zeros() as usize]);
+            code.push(if d32 {OPCODE[dst.size.trailing_zeros() as usize]} else { 0x83 });
 
             code.push(
                 opmod::encode(
@@ -110,8 +112,12 @@ macro_rules! tb2_gprimm_instr {
                 )
             );
             
-            for byte in src.to_le_bytes().iter().take(dst.size as usize) {
-                code.push(*byte);
+            if d32 {
+                for byte in src.to_le_bytes().iter().take(dst.size as usize) {
+                    code.push(*byte);
+                }
+            } else {
+                code.push(src as u8);
             }
     
             code
@@ -130,7 +136,7 @@ macro_rules! tb1_gprrptr_instr {
                 panic!("Error: mem and dst reg are not the same size");
             }
             
-            push_rex!(code, src.reg, dst);
+            push_rex!(code, dst);
     
             const OPCODE: [u8; 4] = $opcodes;
             code.push(OPCODE[dst.size.trailing_zeros() as usize] | dst.id);
@@ -147,7 +153,7 @@ macro_rules! tb1_gprrptr_instr {
     
             if src.offset != 0 {
                 if d32 {
-                    for byte in src.offset.to_le_bytes().iter() {
+                    for byte in src.offset.to_le_bytes().iter().take(4) {
                         code.push(*byte);
                     }
                 }
@@ -188,7 +194,7 @@ macro_rules! tb1_rptrgpr_instr {
     
             if dst.offset != 0 {
                 if d32 {
-                    for byte in dst.offset.to_le_bytes().iter() {
+                    for byte in dst.offset.to_le_bytes().iter().take(4) {
                         code.push(*byte);
                     }
                 }
