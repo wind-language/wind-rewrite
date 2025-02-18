@@ -66,7 +66,7 @@ mod writer_test {
         cb.set_global();
 
         cb.add_bytes(
-            (x86::RSI, x86::ptr(x86::RIP, 0x100, 8)).lea()
+            (x86::RSI, x86::ptr(x86::RBP, 0x100, 8)).lea()
         );
         cb.add_bytes(
             (x86::EDI, 0x01).mov()

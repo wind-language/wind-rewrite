@@ -24,17 +24,9 @@ impl Lea for (GPR, RegPtr) {
         } else {
             code.push(
                 enc::opmod::encode(
-                    0b00,
+                    0b10,
                     dst.id,
-                    enc::opmod::SIB
-                )
-            );
-            
-            code.push(
-                enc::opmod::encode(
-                    0b100,
-                    0b00,
-                    src.reg.id,
+                    0b101
                 )
             );
         }
